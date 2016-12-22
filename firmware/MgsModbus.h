@@ -54,9 +54,9 @@
 */
 
 
-#include "Arduino.h"
+#include "application.h"
 
-#include <SPI.h>
+//#include <SPI.h>
 #include <Ethernet.h>
 
 #ifndef MgsModbus_h
