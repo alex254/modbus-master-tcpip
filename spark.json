@@ -1,0 +1,7 @@
+{
+  "name": "MgsModbus",
+  "author": "john doe <john@doe.io>",
+  "license": "GNU",
+  "version": "0.0.10",
+  "description": "modbus master tcpip port for particle"
+}
