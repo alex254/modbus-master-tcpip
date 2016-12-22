@@ -57,7 +57,7 @@
 #include "application.h"
 
 //#include <SPI.h>
-#include <Ethernet.h>
+#include "Ethernet/Ethernet.h"
 
 #ifndef MgsModbus_h
 #define MgsModbus_h
