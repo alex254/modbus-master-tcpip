@@ -82,16 +82,16 @@ class MgsModbus
 public:
   // general
   MgsModbus();
-  word MbData[MbDataLen]; // memory block that holds all the modbus user data
-  boolean GetBit(word Number);
-  boolean SetBit(word Number,boolean Data); // returns true when the number is in the MbData range
+  uint16_t MbData[MbDataLen]; // memory block that holds all the modbus user data
+  boolean GetBit(uint16_t Number);
+  boolean SetBit(uint16_t Number,boolean Data); // returns true when the number is in the MbData range
   // modbus master
-  void Req(MB_FC FC, word Ref, word Count, word Pos);
+  void Req(MB_FC FC, uint16_t Ref, uint16_t Count, uint16_t Pos);
   void MbmRun();
   IPAddress remSlaveIP;
   // modbus slave
   void MbsRun();  
-  word GetDataLen();
+  uint16_t GetDataLen();
 private: 
   // general
   MB_FC SetFC(int fc);
@@ -100,8 +100,8 @@ private:
   MB_FC MbmFC;
   int MbmCounter;
   void MbmProcess();
-  word MbmPos;
-  word MbmBitCount;
+  uint16_t MbmPos;
+  uint16_t MbmBitCount;
   //modbus slave
   uint8_t MbsByteArray[260]; // send and recieve buffer
   MB_FC MbsFC;

@@ -12,7 +12,7 @@ MgsModbus::MgsModbus()
 
 
 //****************** Send data for ModBusMaster ****************
-void MgsModbus::Req(MB_FC FC, word Ref, word Count, word Pos)
+void MgsModbus::Req(MB_FC FC, uint16_t Ref, uint16_t Count, uint16_t Pos)
 {
   MbmFC = FC;
   byte ServerIp[] = {192,168,200,163};
@@ -137,7 +137,7 @@ void MgsModbus::MbmProcess()
   #endif    
   //****************** Read Coils (1) & Read Input discretes (2) **********************
   if(MbmFC == MB_FC_READ_COILS || MbmFC == MB_FC_READ_DISCRETE_INPUT) {
-    word Count = MbmByteArray[8] * 8;
+    uint16_t Count = MbmByteArray[8] * 8;
     if (MbmBitCount < Count) {
       Count = MbmBitCount;
     }
@@ -149,7 +149,7 @@ void MgsModbus::MbmProcess()
   }
   //****************** Read Registers (3) & Read Input registers (4) ******************
   if(MbmFC == MB_FC_READ_REGISTERS || MbmFC == MB_FC_READ_INPUT_REGISTER) {
-    word Pos = MbmPos;
+    uint16_t Pos = MbmPos;
     for (int i=0;i<MbmByteArray[8];i=i+2) {
       if (Pos < MbDataLen) {
         MbData[Pos] = (MbmByteArray[i+9] * 0x100) + MbmByteArray[i+1+9];
@@ -188,11 +188,11 @@ void MgsModbus::MbsRun()
     }
     MbsFC = SetFC(MbsByteArray[7]);  //Byte 7 of request is FC
   }
-  int Start, WordDataLength, ByteDataLength, CoilDataLength, MessageLength;
+  int Start, uint16_tDataLength, ByteDataLength, CoilDataLength, MessageLength;
   //****************** Read Coils (1 & 2) **********************
   if(MbsFC == MB_FC_READ_COILS || MbsFC == MB_FC_READ_DISCRETE_INPUT) {
-    Start = word(MbsByteArray[8],MbsByteArray[9]);
-    CoilDataLength = word(MbsByteArray[10],MbsByteArray[11]);
+    Start = uint16_t(MbsByteArray[8],MbsByteArray[9]);
+    CoilDataLength = uint16_t(MbsByteArray[10],MbsByteArray[11]);
     ByteDataLength = CoilDataLength / 8;
     if(ByteDataLength * 8 < CoilDataLength) ByteDataLength++;      
     CoilDataLength = ByteDataLength * 8;
@@ -212,12 +212,12 @@ void MgsModbus::MbsRun()
   }
   //****************** Read Registers (3 & 4) ******************
   if(MbsFC == MB_FC_READ_REGISTERS || MbsFC == MB_FC_READ_INPUT_REGISTER) {
-    Start = word(MbsByteArray[8],MbsByteArray[9]);
-    WordDataLength = word(MbsByteArray[10],MbsByteArray[11]);
-    ByteDataLength = WordDataLength * 2;
+    Start = uint16_t(MbsByteArray[8],MbsByteArray[9]);
+    uint16_tDataLength = uint16_t(MbsByteArray[10],MbsByteArray[11]);
+    ByteDataLength = uint16_tDataLength * 2;
     MbsByteArray[5] = ByteDataLength + 3; //Number of bytes after this one.
     MbsByteArray[8] = ByteDataLength;     //Number of bytes after this one (or number of bytes of data).
-    for(int i = 0; i < WordDataLength; i++)
+    for(int i = 0; i < uint16_tDataLength; i++)
     {
       MbsByteArray[ 9 + i * 2] = highByte(MbData[Start + i]);
       MbsByteArray[10 + i * 2] =  lowByte(MbData[Start + i]);
@@ -228,9 +228,9 @@ void MgsModbus::MbsRun()
   }
   //****************** Write Coil (5) **********************
   if(MbsFC == MB_FC_WRITE_COIL) {
-    Start = word(MbsByteArray[8],MbsByteArray[9]);
-    if (word(MbsByteArray[10],MbsByteArray[11]) == 0xFF00){SetBit(Start,true);}
-    if (word(MbsByteArray[10],MbsByteArray[11]) == 0x0000){SetBit(Start,false);}
+    Start = uint16_t(MbsByteArray[8],MbsByteArray[9]);
+    if (uint16_t(MbsByteArray[10],MbsByteArray[11]) == 0xFF00){SetBit(Start,true);}
+    if (uint16_t(MbsByteArray[10],MbsByteArray[11]) == 0x0000){SetBit(Start,false);}
     MbsByteArray[5] = 2; //Number of bytes after this one.
     MessageLength = 8;
     client.write(MbsByteArray, MessageLength);
@@ -238,8 +238,8 @@ void MgsModbus::MbsRun()
   } 
   //****************** Write Register (6) ******************
   if(MbsFC == MB_FC_WRITE_REGISTER) {
-    Start = word(MbsByteArray[8],MbsByteArray[9]);
-    MbData[Start] = word(MbsByteArray[10],MbsByteArray[11]);
+    Start = uint16_t(MbsByteArray[8],MbsByteArray[9]);
+    MbData[Start] = uint16_t(MbsByteArray[10],MbsByteArray[11]);
     MbsByteArray[5] = 6; //Number of bytes after this one.
     MessageLength = 12;
     client.write(MbsByteArray, MessageLength);
@@ -247,8 +247,8 @@ void MgsModbus::MbsRun()
   }
   //****************** Write Multiple Coils (15) **********************
   if(MbsFC == MB_FC_WRITE_MULTIPLE_COILS) {
-    Start = word(MbsByteArray[8],MbsByteArray[9]);
-    CoilDataLength = word(MbsByteArray[10],MbsByteArray[11]);
+    Start = uint16_t(MbsByteArray[8],MbsByteArray[9]);
+    CoilDataLength = uint16_t(MbsByteArray[10],MbsByteArray[11]);
     MbsByteArray[5] = 6;
     for(int i = 0; i < CoilDataLength; i++)
     {
@@ -260,13 +260,13 @@ void MgsModbus::MbsRun()
   }  
   //****************** Write Multiple Registers (16) ******************
   if(MbsFC == MB_FC_WRITE_MULTIPLE_REGISTERS) {
-    Start = word(MbsByteArray[8],MbsByteArray[9]);
-    WordDataLength = word(MbsByteArray[10],MbsByteArray[11]);
-    ByteDataLength = WordDataLength * 2;
+    Start = uint16_t(MbsByteArray[8],MbsByteArray[9]);
+    uint16_tDataLength = uint16_t(MbsByteArray[10],MbsByteArray[11]);
+    ByteDataLength = uint16_tDataLength * 2;
     MbsByteArray[5] = 6;
-    for(int i = 0; i < WordDataLength; i++)
+    for(int i = 0; i < uint16_tDataLength; i++)
     {
-      MbData[Start + i] =  word(MbsByteArray[ 13 + i * 2],MbsByteArray[14 + i * 2]);
+      MbData[Start + i] =  uint16_t(MbsByteArray[ 13 + i * 2],MbsByteArray[14 + i * 2]);
     }
     MessageLength = 12;
     client.write(MbsByteArray, MessageLength);
@@ -292,13 +292,13 @@ MB_FC MgsModbus::SetFC(int fc)
 }
 
  
-word MgsModbus::GetDataLen()
+uint16_t MgsModbus::GetDataLen()
 {
   return MbDataLen;
 }
  
  
-boolean MgsModbus::GetBit(word Number)
+boolean MgsModbus::GetBit(uint16_t Number)
 {
   int ArrayPos = Number / 16;
   int BitPos = Number - ArrayPos * 16;
@@ -307,7 +307,7 @@ boolean MgsModbus::GetBit(word Number)
 }
 
 
-boolean MgsModbus::SetBit(word Number,boolean Data)
+boolean MgsModbus::SetBit(uint16_t Number,boolean Data)
 {
   int ArrayPos = Number / 16;
   int BitPos = Number - ArrayPos * 16;
